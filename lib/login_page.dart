@@ -1,19 +1,23 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'BiometricVerification.dart';
 import 'user_management_page.dart';
-import 'HomePage.dart';
-
+import 'auth_service.dart';
 
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
+
+//change 12/12
 class _LoginPageState extends State<LoginPage> {
+  final _authService = AuthService();
+
+  //important//
+
   final _formKey            = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -45,16 +49,19 @@ class _LoginPageState extends State<LoginPage> {
       final responseData = json.decode(response.body);
       // 登入成功
       if (response.statusCode == 200) {
+        //這邊站存使用者登入權杖
+        await _authService.saveAuthInfo(responseData);
+        // await 關鍵字來等待方法執行完成後再繼續執行後續代碼。
 
+        final userType = responseData['user']['user_type'];
         // 根據用戶類型導航到不同頁面
-        if (responseData['user']['user_type'] == 'admin') {
+        if (userType == 'admin') {
           print(responseData);
-          Navigator.of(context).pushReplacement(
+          Navigator.pushReplacement(
+            context,
             MaterialPageRoute(
-
               builder: (context) => UserManagementPage(
-                //userMail: responseData['user']['email'],
-                userType: 'admin',
+                userType: userType,
                 userMail: _usernameController.text,
               ),
             ),
