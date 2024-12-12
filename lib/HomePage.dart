@@ -5,7 +5,11 @@ import 'StudentCoursesMainPage.dart';
 class HomePage extends StatefulWidget {
   final String userType;
   final String userMail;
-  HomePage({required this.userMail, required this.userType});
+  const HomePage({
+    Key? key,
+    required this.userMail,  // 標記為必需的
+    required this.userType,
+  }) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -23,8 +27,8 @@ class _HomePageState extends State<HomePage> {
           builder: (context) => StudentCoursesMainPage(
             title: '學生課程主頁',
             // 如果 MyHomePage 需要用戶資訊，可以在這裡傳遞
-            // userMail: widget.userMail,
-            // userType: widget.userType,
+            userMail: widget.userMail,
+            userType: widget.userType,
           ),
         ),
       );

@@ -51,10 +51,14 @@ class _ImageVerificationScreenState extends State<ImageVerificationScreen> {
       Future.delayed(Duration(seconds: 1), () {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => HomePage(
-              userMail: widget.userMail,
-              userType: widget.userType,
-            ),
+            builder: (context) {
+
+              print('Navigating to HomePage with email: ${widget.userMail}');  // 調試輸出
+              return HomePage(
+                userMail: widget.userMail,  // 確認這裡有正確傳值
+                userType: widget.userType,
+              );
+            }
           ),
         );
       });

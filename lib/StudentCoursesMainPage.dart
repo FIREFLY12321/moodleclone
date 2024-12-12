@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'Quote.dart';
 import 'QuoteClassCard.dart';
 import 'DialogUtils.dart';
 import 'DropButton.dart';
+import 'package:http/http.dart' as http;
 import 'Drawer.dart';
 
 class StudentCoursesMainPage extends StatefulWidget {
@@ -13,7 +17,7 @@ class StudentCoursesMainPage extends StatefulWidget {
     this.userType,
   });
 
-  final String title;
+  final String  title;
   final String? userMail;
   final String? userType;
 
@@ -21,26 +25,142 @@ class StudentCoursesMainPage extends StatefulWidget {
   State<StudentCoursesMainPage> createState() => _StudentCoursesMainPageState();
 }
 class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
-  //final TextEditingController nameController=new TextEditingController();
-  List<Quote>courseList=[
-    Quote(title: "113.1【幼保系】GE3909305 高等工程數學 Advanced Engineering Mathematics", semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】BA2800701 幼兒園教材教法-中級會計學 Kindergarten Textbook Teaching Method-Intermediate Accounting",semester:"113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】TC2004701 幼兒園教材教法-微積分教育 Kindergarten Textbook Teaching Method-Calculus Education",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】TCG139301 結構工程力學 Structural Engineering Mechanics",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】MI3002301 資料結構 Data Structures",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】MI3008301 管理數學 Mathematics for Management",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】MI306A001 統計學(上)、MI306A002 統計學(上)",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】MI306A001 嬰幼兒遊戲-CSGO ，Games for babies and toddlers-CSGO",
-        semester: "113學年度 第 1 學期"),
-    Quote(title:"113.1【幼保系】MI306A001 嬰幼兒性向觀念導正基礎實習、Basic internship on infants and young children’s sexual orientation guidance",
-        semester: "113學年度 第 1 學期"),
-  ];
+  List<Quote> courseList = [];
+  // 從 email 獲取學號的輔助函數
+  String getStudentIdFromEmail(String email) {
+    return email.split('@')[0];  // 取 @ 符號前的部分作為學號
+  }
+  Future<List<Quote>> fetchStudentCourses(String email, BuildContext context) async {
+    try {
+      // 使用 ScaffoldMessenger 顯示提示
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('正在獲取課程，用戶郵箱: $email'),
+          duration: Duration(seconds: 3),
+        ),
+      );
 
+      final response = await http.get(
+        Uri.parse('http://192.168.196.159:8000/student/courses/$email'),
+      );
+
+      // 顯示 API 響應狀態
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('API響應狀態: ${response.statusCode}'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data['status'] == 'success') {
+          return (data['courses'] as List).map((courseData) => Quote(
+            title: courseData['title'],
+            semester: courseData['semester'],
+          )).toList();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('API返回錯誤: ${data['message']}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return [];
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('HTTP請求失敗: ${response.statusCode}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return [];
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('發生錯誤: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return [];
+    }
+  }
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // 彈出對話框顯示 userMail 的值
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('用戶信息'),
+            content: Text(widget.userMail ?? '沒有收到用戶郵箱'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  // 如果有郵箱，則繼續獲取課程
+                  if (widget.userMail != null) {
+                    fetchStudentCourses(widget.userMail!, context).then((courses) {
+                      setState(() {
+                        courseList = courses;
+                      });
+                    });
+                  }
+                },
+                child: Text('確定'),
+              ),
+            ],
+          );
+        },
+      );
+    });
+  }
+
+
+  // 載入學生課程的函數
+  Future<void> loadStudentCourses(String email) async {
+    final studentId = getStudentIdFromEmail(email);
+
+    // 數據庫查詢 SQL：
+    final sql = '''
+    SELECT 
+      c.title,
+      c.course_code,
+      t.full_name AS teacher_name,
+      ce.enrollment_date,
+      c.description
+    FROM courses c
+    JOIN course_enrollments ce ON c.course_id = ce.course_id
+    JOIN users s ON ce.user_id = s.user_id
+    JOIN users t ON c.teacher_id = t.user_id
+    WHERE s.student_id = ?
+    ORDER BY ce.enrollment_date DESC
+  ''';
+    try {
+      // 執行查詢（這裡需要根據你的數據庫連接方式來實現）
+      // var results = await db.query(sql, [studentId]);
+
+      setState(() {
+        courseList.clear();  // 清空現有列表
+
+        // 將查詢結果轉換為 Quote 對象並添加到列表中
+        // for (var row in results) {
+        //   courseList.add(Quote(
+        //     title: "${row['course_code']} ${row['title']}",
+        //     semester: "目前學期",  // 可以從數據庫中添加學期信息
+        //   ));
+        // }
+      });
+    } catch (e) {
+      print('Error loading courses: $e');
+      // 可以添加錯誤處理邏輯，比如顯示提示框
+    }
+  }
 
   Widget quoteClassTemplate({quote}){
     return new QuoteClassCard(quote:quote);
@@ -168,7 +288,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                           IconButton(
                             icon: Icon(Icons.align_horizontal_right_rounded),
                             onPressed: () {
-                              //
+                              //                                                 todo::   func that modify users profile picture
                             },
                           ),
                         ],
