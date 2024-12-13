@@ -33,7 +33,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
       // 使用 ScaffoldMessenger 顯示提示
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('正在獲取課程，用戶郵箱: $email'),
+          content: Text('正在獲取課程，Mail: $email'),
           duration: Duration(seconds: 3),
         ),
       );
@@ -54,8 +54,18 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
         final data = json.decode(response.body);
         if (data['status'] == 'success') {
           return (data['courses'] as List).map((courseData) => Quote(
-            title: courseData['title'],
-            semester: courseData['semester'],
+            title     :
+                        "113.1"                 +
+                        " "                     +
+                        courseData['courseCode']+
+                        " "                     +
+                        courseData['title'     ]+
+                        " "                     +
+                        courseData['teacher'   ],
+
+            semester  : courseData['semester'  ],
+            //teacher   : courseData['teacher'   ],
+            //courseCode: courseData['courseCode'],
           )).toList();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -99,13 +109,12 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
       setState(() {
         isLoading = true;  // 添加狀態標記
       });
-
       if (widget.userMail != null) {
         final courses = await fetchStudentCourses(widget.userMail!, context);
         if (mounted) {
           setState(() {
             courseList = courses;
-            isLoading = false;
+            isLoading  = false;
           });
         }
       }
@@ -140,25 +149,6 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
     WHERE s.student_id = ?
     ORDER BY ce.enrollment_date DESC
   ''';
-    try {
-      // 執行查詢（這裡需要根據你的數據庫連接方式來實現）
-      // var results = await db.query(sql, [studentId]);
-
-      setState(() {
-        courseList.clear();  // 清空現有列表
-
-        // 將查詢結果轉換為 Quote 對象並添加到列表中
-        // for (var row in results) {
-        //   courseList.add(Quote(
-        //     title: "${row['course_code']} ${row['title']}",
-        //     semester: "目前學期",  // 可以從數據庫中添加學期信息
-        //   ));
-        // }
-      });
-    } catch (e) {
-      print('Error loading courses: $e');
-      // 可以添加錯誤處理邏輯，比如顯示提示框
-    }
   }
 
   Widget quoteClassTemplate({quote}){
@@ -174,6 +164,8 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Drawer 定義在這裡
+      // 這邊沒有實作成功
+      //
       drawer: Drawer(
         child: ListView(
           children: [
@@ -264,7 +256,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                         ),
                       ],
                     ),
-                    SizedBox(height: 5.0),
+                    SizedBox(height: 3.0),
                     Container(
                       height: 35,
                       child: TextField(
@@ -287,7 +279,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                           IconButton(
                             icon: Icon(Icons.align_horizontal_right_rounded),
                             onPressed: () {
-                              //                                                 todo::   func that modify users profile picture
+                              //                                                 todo::   func that modify user's profile picture
                             },
                           ),
                         ],
