@@ -1,13 +1,10 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'Quote.dart';
 import 'QuoteClassCard.dart';
 import 'DialogUtils.dart';
 import 'DropButton.dart';
 import 'package:http/http.dart' as http;
-import 'Drawer.dart';
 
 class StudentCoursesMainPage extends StatefulWidget {
   const StudentCoursesMainPage({
@@ -30,6 +27,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
   String getStudentIdFromEmail(String email) {
     return email.split('@')[0];  // 取 @ 符號前的部分作為學號
   }
+  bool isLoading=false;
   Future<List<Quote>> fetchStudentCourses(String email, BuildContext context) async {
     try {
       // 使用 ScaffoldMessenger 顯示提示
@@ -92,35 +90,36 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // 彈出對話框顯示 userMail 的值
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('用戶信息'),
-            content: Text(widget.userMail ?? '沒有收到用戶郵箱'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  // 如果有郵箱，則繼續獲取課程
-                  if (widget.userMail != null) {
-                    fetchStudentCourses(widget.userMail!, context).then((courses) {
-                      setState(() {
-                        courseList = courses;
-                      });
-                    });
-                  }
-                },
-                child: Text('確定'),
-              ),
-            ],
-          );
-        },
-      );
+      _loadCourses2();  // 新的加載函數
     });
   }
+  // 新增加載函數
+  Future<void> _loadCourses2() async {
+    try {
+      setState(() {
+        isLoading = true;  // 添加狀態標記
+      });
 
+      if (widget.userMail != null) {
+        final courses = await fetchStudentCourses(widget.userMail!, context);
+        if (mounted) {
+          setState(() {
+            courseList = courses;
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('加載課程失敗: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
 
   // 載入學生課程的函數
   Future<void> loadStudentCourses(String email) async {
