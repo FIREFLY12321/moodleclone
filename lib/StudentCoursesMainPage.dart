@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'Drawer.dart';
 import 'Quote.dart';
 import 'QuoteClassCard.dart';
 import 'DialogUtils.dart';
@@ -162,36 +163,9 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
   }
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
-      // Drawer 定義在這裡
-      // 這邊沒有實作成功
-      //
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Text('Drawer Header'),
-            ),
-            ListTile(
-              title: Text('Item 1'),
-              onTap: () {
-                // 處理點擊事件
-                Navigator.pop(context); // 關閉 drawer
-              },
-            ),
-            ListTile(
-              title: Text('Item 2'),
-              onTap: () {
-                // 處理點擊事件
-                Navigator.pop(context); // 關閉 drawer
-              },
-            ),
-          ],
-        ),
-      ),
+      key: _scaffoldKey,
       backgroundColor: Colors.white,
       body: Column(
         children: [
@@ -208,7 +182,6 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                 ),
                 Spacer(),
                 TextButton(
-                  onPressed: () =>Scaffold.of(context).openDrawer(),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -219,6 +192,9 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                       ),
                     ],
                   ),
+                  onPressed: (){
+                    _scaffoldKey.currentState?.openEndDrawer();
+                  },
                 ),
                 //here==========================================
               ],
@@ -279,7 +255,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                           IconButton(
                             icon: Icon(Icons.align_horizontal_right_rounded),
                             onPressed: () {
-                              //                                                 todo::   func that modify user's profile picture
+                              _scaffoldKey.currentState?.openEndDrawer();
                             },
                           ),
                         ],
@@ -300,6 +276,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
           ),
         ],
       ),
+      endDrawer: CustomDrawer(), // 使用外部定義的 Drawer
     );
   }
 }
