@@ -65,8 +65,7 @@ class _StudentCoursesMainPageState extends State<StudentCoursesMainPage> {
                         courseData['teacher'   ],
 
             semester  : courseData['semester'  ],
-            //teacher   : courseData['teacher'   ],
-            //courseCode: courseData['courseCode'],
+            courseCode: courseData['courseCode'],  // 直接傳入 courseCode
           )).toList();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
