@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import 'AuthServiceClass.dart';
+import 'logoutFunction.dart';
+
 class CustomDrawer extends StatelessWidget {
+  // 在 State 類頂部先宣告 AuthService
+  final _authService = AuthService();
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -70,6 +75,54 @@ class CustomDrawer extends StatelessWidget {
             onTap: () {
               Navigator.pop(context); // 關閉側拉視窗
             },
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                // 登出按鈕的邏輯
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text('確認登出'),
+                      content: Text('您確定要登出嗎？'),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context); // 關閉對話框
+
+
+                          },
+                          child: Text('取消'),
+                        ),
+
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context); // 模擬登出後的動作
+                            Navigator.pop(context); // 關閉側拉視窗
+                            // 在這裡可以添加登出邏輯
+                            logout(context,_authService);//需要兩格參數
+                            //
+                          },
+                          child: Text('確定'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              },
+              icon: Icon(Icons.logout,color: Colors.white,),
+              label: Text(
+                  '登出',
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // 按鈕背景顏色設置為紅色
+              ),
+            ),
           ),
         ],
       ),

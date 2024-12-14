@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_secure_storage: ^8.1.0
   shared_preferences: ^2.2.2  # 使用最新的穩定版本
   http: ^1.1.0
 
