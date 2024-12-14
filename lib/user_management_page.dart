@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'Drawer.dart';
 import 'StudentCoursesMainPage.dart';
 
 class UserManagementPage extends StatefulWidget {
@@ -84,23 +85,23 @@ class _UserManagementPageState extends State<UserManagementPage> {
     try {
       final response = await http.post(
         Uri.parse('http://192.168.196.159:8000/users/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {'Content-Type': 'application/json'}  ,
         body: json.encode({
-          'username': _usernameController.text,
-          'email': _emailController.text,
-          'password': _passwordController.text,
-          'full_name': _fullNameController.text,
-          'user_type': 'student',
+          'username':   _usernameController.text ,
+          'email':      _emailController.text    ,
+          'password':   _passwordController.text ,
+          'full_name':  _fullNameController.text ,
+          'user_type':  'student'                ,
           'student_id': _studentIdController.text,
         }),
       );
       print('Request body: ${json.encode({
-        'username': _usernameController.text,
-        'email': _emailController.text,
-        'password': _passwordController.text,
-        'full_name': _fullNameController.text,
+        'username':   _usernameController.text  ,
+        'email':      _emailController.text     ,
+        'password':   _passwordController.text  ,
+        'full_name':  _fullNameController.text  ,
         'user_type': 'student',
-        'student_id': _studentIdController.text,
+        'student_id': _studentIdController.text ,
       })}');
       print('Response status: ${response.statusCode}');
       print('Response body: ${response.body}');
@@ -232,16 +233,28 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   @override
   Widget build(BuildContext context) {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('用戶管理'),
       ),
       body: SingleChildScrollView(
         child: Padding(
+
+
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              IconButton(
+
+                onPressed: (){
+                  _scaffoldKey.currentState?.openEndDrawer();
+                },
+                icon: Icon(Icons.settings),
+
+              ),
               Form(
                 key: _formKey,
                 child: Column(
@@ -353,6 +366,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
           ),
         ),
       ),
+      endDrawer: CustomDrawer(), // 使用外部定義的 Drawer
     );
   }
 }

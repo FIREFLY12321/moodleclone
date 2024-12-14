@@ -11,44 +11,6 @@ class MemberListPage extends StatefulWidget {
   State<MemberListPage> createState() => _MemberListPageState();
 }
 
-/*
-class _MemberListPageState extends State<MemberListPage> {
-  // 修改構造函數
-  @override
-  _MemberListPageState createState() => _MemberListPageState();
-
-  final List<MemberQuote> members = [
-    MemberQuote(studnetID: "D1094182", studentName: "王小明"),
-
-    // 可以繼續添加更多測試數據
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text('成員列表'),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          color: Colors.grey[100], // 設置背景顏色
-        ),
-        child: ListView.builder(
-          physics: BouncingScrollPhysics(), // 增加彈性滾動效果5
-          itemCount: members.length,
-          itemBuilder: (context, index) {
-            return MemberQuoteCard(quote: members[index]);
-          },
-        ),
-      ),
-    );
-  }
-}
-*/
 class _MemberListPageState extends State<MemberListPage> {
   List<MemberQuote> members = [];
   bool isLoading = true;
