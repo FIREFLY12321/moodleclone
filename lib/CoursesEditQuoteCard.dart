@@ -1,25 +1,32 @@
 import 'package:flutter/material.dart';
 import 'Quote.dart';
 import 'StudentCoursesMemberChildPage.dart';
-class CoursesEditQuoteCard extends StatelessWidget{
+import 'EditCoursesFuture.dart';
+import 'DeleteCoursesFuture.dart';
+
+
+class CoursesEditQuoteCard extends StatelessWidget {
   late final Quote quote;
-  final Function(String)? onPressed; // 添加回調函數屬性
+  final Function(String)? onPressed;
+  final Function()? onEdited;  // 添加編輯後的回調
 
   CoursesEditQuoteCard({
     required this.quote,
-    this.onPressed, // 構造函數中添加可選參數
+    this.onPressed,
+    this.onEdited,  // 可選的回調函數
   });
 
+  @override
   Widget build(BuildContext context) {
-    return InkWell( // 使用 InkWell 來添加點擊效果
+    return InkWell(
       onTap: () {
         if (onPressed != null) {
-          onPressed!(quote.courseCode); // 調用回調函數並傳入課程代碼
+          onPressed!(quote.courseCode);
         }
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => MemberListPage(courseCode: quote.courseCode),  // 傳入課程代碼
+            builder: (context) => MemberListPage(courseCode: quote.courseCode),
           ),
         );
       },
@@ -41,12 +48,25 @@ class CoursesEditQuoteCard extends StatelessWidget{
                 ),
                 SizedBox(height: 6),
                 IconButton(
-                    onPressed: (){},//這邊要寫入:編輯課程
-                    icon: Icon(Icons.edit),
+                  onPressed: () async {
+                    final wasEdited = await editCoursesFuture(context, quote);
+                    if (wasEdited && onEdited != null) {
+                      onEdited!();  // 編輯成功後調用回調
+                    }
+                  },
+                  icon: Icon(Icons.edit),
                 ),
-                SizedBox(height: 6,),
+                SizedBox(height: 6),
                 IconButton(
-                  onPressed: (){},//這邊要寫入:刪除課程
+                  onPressed: () async {
+                    final wasDeleted = await deleteCoursesFuture(
+                        context,
+                        quote.courseCode
+                    );
+                    if (wasDeleted && onEdited != null) {
+                      onEdited!();
+                    }
+                  },
                   icon: Icon(Icons.delete_forever),
                 ),
               ],
