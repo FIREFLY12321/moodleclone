@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'Quote.dart';
-import 'StudentCoursesmemberChildPage.dart';
+import 'StudentCoursesMemberChildPage.dart';
 class QuoteClassCard extends StatelessWidget{
   late final Quote quote;
   final Function(String)? onPressed; // 添加回調函數屬性

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'CreateCoursePage.dart';
 import 'Drawer.dart';
 import 'StudentCoursesMainPage.dart';
 
@@ -241,20 +242,38 @@ class _UserManagementPageState extends State<UserManagementPage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-
-
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              IconButton(
 
-                onPressed: (){
-                  _scaffoldKey.currentState?.openEndDrawer();
-                },
-                icon: Icon(Icons.settings),
+              Row(
+                children: [
+                  IconButton(
 
+                    onPressed: (){
+                      _scaffoldKey.currentState?.openEndDrawer();
+                    },
+                    icon: Icon(Icons.settings),
+
+                  ),
+                  Spacer(),
+                  IconButton(
+
+                    onPressed: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CreateCoursePage(),//CreateCoursePage(teacherId: currentTeacherId),
+                        ),
+                      );
+                    },
+                    icon: Icon(Icons.golf_course),
+
+                  ),
+                ],
               ),
+
               Form(
                 key: _formKey,
                 child: Column(
